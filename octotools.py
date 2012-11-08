@@ -2,7 +2,7 @@
 import os,re,locale
 import subprocess
 import sublime, sublime_plugin
-import thread
+import thread,functools
 
 locale.setlocale(locale.LC_CTYPE,"en_US.UTF-8")
 OCTOPRESS_METHOD_NEW_POST = 1
@@ -14,27 +14,32 @@ class OctotoolsCommand(sublime_plugin.WindowCommand):
 	def run_command(self,command,method_type):
 		exec_command = self.command + " " + command
 		os.chdir(self.octo_path)
-		sublime.status_message("running...")
-		proc = subprocess.Popen(exec_command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,env=self.env, shell=True)
-		#self.finish(proc,method_type)
-		thread.start_new_thread(self.finish,(proc,method_type))
-	def finish(self,proc,method_type):
-		sublime.status_message("finish!")
-		output = proc.stdout.read().strip()
-		if method_type == OCTOPRESS_METHOD_NEW_POST :
-			if re.search('Creating new post: ',output):
-				self.file =  output.split(": ")[1]
+		self.method = method_type
+		self.proc = subprocess.Popen(exec_command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,env=self.env, shell=True)
+		thread.start_new_thread(self.check_result,())
+
+	def check_result(self):
+		sublime.set_timeout(functools.partial(self.show_status, "finish"), 0)
+		self.output = self.proc.stdout.read().strip()
+		sublime.set_timeout(functools.partial(self.finish), 5)
+
+	def finish(self):
+		if self.method == OCTOPRESS_METHOD_NEW_POST :
+			if re.search('Creating new post: ',self.output):
+				self.file =  self.output.split(": ")[1]
 				self.window.open_file(os.path.join(self.octo_path,self.file))
 			else:
 				sublime.error_message("can't rake new post, error info:\n %s "%output)
 				return False
-		elif method_type == OCTOPRESS_METHOD_GENERATE :
-			if re.search('Successfully generated site',output):
+		elif self.method == OCTOPRESS_METHOD_GENERATE :
+			if re.search('Successfully generated site',self.output):
 				sublime.message_dialog("generate blog is success!")
-		elif method_type == OCTOPRESS_METHOD_DEPLOY or \
-		 method_type == OCTOPRESS_METHOD_GEN_DEP :
-			if re.search('OK',output):
+		elif self.method == OCTOPRESS_METHOD_DEPLOY or \
+		 self.method == OCTOPRESS_METHOD_GEN_DEP :
+			if re.search('OK',self.output):
 				sublime.message_dialog("deploy post is success!")
+	def show_status(self,text):
+		sublime.status_message(text)
 	# def post_new(self,output):
 
 	# def post_page(self,output):
