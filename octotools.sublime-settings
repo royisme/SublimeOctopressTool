@@ -1,0 +1,7 @@
+{
+  // path to your octopress
+  "octoblog_path": "/Users/somebody/www/octblog/",
+  // your rbenv bin path
+  "rbenv_shims_path": "/usr/local/Cellar/rbenv/0.3.0/shims"
+
+}

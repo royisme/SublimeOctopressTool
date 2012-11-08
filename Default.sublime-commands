@@ -1,0 +1,7 @@
+[
+  { "caption": "Octopress Tool: New Post", "command": "octotools_new_post" },
+  { "caption": "Octopress Tool: Generate", "command": "octotools_generate" },
+  { "caption": "Octopress Tool: Gen_Deploy", "command": "octotools_gen_deploy" },
+  { "caption": "Octopress Tool: Deploy", "command": "octotools_deploy" }
+
+]
