@@ -1,4 +1,4 @@
-##octopress-tools-for-sublime-text
+##SublimeOctopressTool
 ### a simple octopress plugin for sublime text 2
 ####required
 OS : Mac OSX 10.6+
